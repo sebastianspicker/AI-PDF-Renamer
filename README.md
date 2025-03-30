@@ -1,8 +1,6 @@
 # AI-PDF-Renamer
 A PDF Renamer with Heuristics and Local LLM. This repository contains a Python script that automatically renames PDF files based on their **content**. It leverages both **heuristics** (regex-based scoring) and a **local LLM** (Language Model) to generate summaries, keywords, and categories. For large PDFs, the script can **split** (chunk) the text and summarize each part separately, merging them into a final summary.
 
----
-
 ## Table of Contents
 
 1. [Overview](#overview)  
@@ -15,8 +13,6 @@ A PDF Renamer with Heuristics and Local LLM. This repository contains a Python s
 8. [Known Issues](#known-issues)  
 9. [Potential Improvements](#potential-improvements)  
 10. [License](#license)
-
----
 
 ## Overview
 
@@ -31,8 +27,6 @@ Many PDF documents are poorly named (e.g., `Scan0001.pdf`). This script:
 
 If a file is very large (e.g., >15k characters), the text is chunked, partially summarized, and the partial summaries are merged into one final summary. This ensures the entire PDF is considered rather than truncating the text.
 
----
-
 ## Features
 
 - **Heuristic Scoring**: Each regex pattern has a numeric weight. If a PDF matches multiple patterns, scores add up. The pattern with the highest total score determines the heuristic category.  
@@ -44,8 +38,6 @@ If a file is very large (e.g., >15k characters), the text is chunked, partially 
   - **Category** (heuristic + AI).  
   - **Keywords** and final short summary tokens.  
 - **Meta Word Filtering**: Removes prompt-specific words like `“zusammenfassung”`, `“json”`, `“schlüsselwörter”` from the filename.
-
----
 
 ## Requirements
 
