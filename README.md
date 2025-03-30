@@ -12,7 +12,6 @@ A PDF Renamer with Heuristics and Local LLM. This repository contains a Python s
 7. [How It Works](#how-it-works)  
 8. [Known Issues](#known-issues)  
 9. [Potential Improvements](#potential-improvements)  
-10. [License](#license)
 
 ## Overview
 
