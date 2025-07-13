@@ -1,4 +1,3 @@
-```python
 import os
 import re
 import json
@@ -648,9 +647,23 @@ def get_final_summary(summary, keywords, category, language="de", temperature=0.
             "Return ONLY {\"final_summary\":\"...\"}, no explanations.\n\n"
             + base_text
         )
-        p2 = ...
-        p3 = ...
-        p4 = ...
+        p2 = (
+            "Please respond ONLY with pure JSON in the form {\"final_summary\":\"kw1,kw2\"}. "
+            "Maximum 5 short keywords, no full sentences!\n\n"
+            + base_text
+        )
+
+        p3 = (
+            "Caution! ONLY return {\"final_summary\":\"...\"}. "
+            "Short keywords only, no sentences!\n\n"
+            + base_text
+        )
+
+        p4 = (
+            "Last try! Give pure JSON {\"final_summary\":\"...\"}.\n"
+            "Up to 5 short keywords, NO explanations:\n\n"
+            + base_text
+        )
 
     r1 = get_field_with_retry(p1, temperature, 3)
     f1 = parse_json_response(r1, "final_summary", "na")
@@ -984,4 +997,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
