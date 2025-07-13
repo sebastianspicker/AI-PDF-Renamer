@@ -1,4 +1,3 @@
-```python
 import os
 import re
 import json
@@ -364,10 +363,23 @@ def get_document_summary(pdf_content, language="de", temperature=0.0):
             )
         else:
             # English version, analogous
-            prompt1 = "Summarize #1...\n" + pdf_content
-            prompt2 = "Summarize #2...\n" + pdf_content
-            prompt3 = "Summarize #3...\n" + pdf_content
-            prompt4 = "Summarize #4...\n" + pdf_content
+            prompt1 = (
+                "Summarize the following text in 1–2 concise sentences. "
+                "Return raw JSON only: {\"summary\":\"...\"}\n\n" + pdf_content
+            )
+            prompt2 = (
+                "Provide a 1–2 sentence summary as JSON {\"summary\":\"...\"}. "
+                "No extra explanations.\n\n" + pdf_content
+            )
+            prompt3 = (
+                "Text:\n" + pdf_content
+                + "\n\nGive ONLY {\"summary\":\"...\"}. "
+                "No apologies or explanations!"
+            )
+            prompt4 = (
+                "Attention! I need pure JSON in the form {\"summary\":\"...\"}. "
+                "Here is the text:\n\n" + pdf_content
+            )
 
         r1 = get_field_with_retry(prompt1, temperature, 3)
         s1 = parse_json_response(r1, "summary", "na")
@@ -486,11 +498,31 @@ def get_document_keywords(summary, language="de", temperature=0.0):
             + summary
         )
     else:
-        # English placeholders
-        p1 = "english #1 keywords..."
-        p2 = "english #2 keywords..."
-        p3 = "english #3 keywords..."
-        p4 = "english #4 keywords..."
+        # English version
+        p1 = (
+            "Extract 5–7 keywords from this summary. "
+            "Return **only** JSON in the form:\n\n"
+            "{\"keywords\":[\"kw1\",\"kw2\",\"kw3\"]}\n\n"
+            "Example:\n{\"keywords\":[\"bachelor\",\"teaching\",\"secondary school\"]}\n\n"
+            "Now return ONLY raw JSON, nothing else.\n"
+            "Summary:\n"
+            + summary
+        )
+        p2 = (
+            "Return ONLY plain JSON like:\n"
+            "{\"keywords\":[\"kw1\",\"kw2\"]}\n"
+            "Example: {\"keywords\":[\"bachelor\",\"teaching\"]}\n\n"
+            "Here is the summary:\n"
+            + summary
+        )
+        p3 = (
+            "Summary:\n" + summary
+            + "\nJust raw JSON {\"keywords\":[\"word1\",\"word2\"]}!"
+        )
+        p4 = (
+            "Attention: pure JSON {\"keywords\":[...]} - NOTHING else!\n\n"
+            + summary
+        )
 
     r1 = get_field_with_retry(p1, temperature, 3)
     k1 = parse_json_response(r1, "keywords", "na")
@@ -556,11 +588,27 @@ def get_document_category(summary, keywords, language="de", temperature=0.0):
             + base_text
         )
     else:
-        # English placeholders
-        p1 = "english cat p1..."
-        p2 = "english cat p2..."
-        p3 = "english cat p3..."
-        p4 = "english cat p4..."
+        # English version
+        p1 = (
+            "Determine an appropriate category as pure JSON.\n"
+            "Return **only**:\n\n"
+            "{\"category\":\"...\"}\n\n"
+            "Example:\n{\"category\":\"transcript\"}\n\n"
+            "No further explanations, just JSON. Text:\n"
+            + base_text
+        )
+        p2 = (
+            "Just give {\"category\":\"...\"} with no additions:\n"
+            + base_text
+        )
+        p3 = (
+            base_text
+            + "\n\nReturn ONLY {\"category\":\"...\"}!"
+        )
+        p4 = (
+            "ATTENTION: pure JSON only!\n"
+            + base_text
+        )
 
     r1 = get_field_with_retry(p1, temperature, 3)
     c1 = parse_json_response(r1, "category", "na")
@@ -639,7 +687,7 @@ def get_final_summary(summary, keywords, category, language="de", temperature=0.
             + base_text
         )
     else:
-        # English placeholders
+        # English version
         p1 = (
             "Create up to 5 **short keywords** (1–2 words each) as pure JSON.\n"
             "Example:\n"
@@ -648,9 +696,24 @@ def get_final_summary(summary, keywords, category, language="de", temperature=0.
             "Return ONLY {\"final_summary\":\"...\"}, no explanations.\n\n"
             + base_text
         )
-        p2 = ...
-        p3 = ...
-        p4 = ...
+        p2 = (
+            "Respond with ONLY pure JSON in the format "
+            "{\"final_summary\":\"keyword1,keyword2\"}. "
+            "Maximum of 5 short keywords, no sentences.\n"
+            "Example:\n"
+            "{\"final_summary\":\"sick note,doctor visit\"}\n\n"
+            + base_text
+        )
+        p3 = (
+            "REMEMBER: Only the structure {\"final_summary\":\"...\"}. "
+            "Keep it to short keywords!\n\n"
+            + base_text
+        )
+        p4 = (
+            "Last attempt! Provide pure JSON {\"final_summary\":\"...\"}.\n"
+            "Up to 5 brief keywords, NO explanations:\n\n"
+            + base_text
+        )
 
     r1 = get_field_with_retry(p1, temperature, 3)
     f1 = parse_json_response(r1, "final_summary", "na")
@@ -984,4 +1047,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
