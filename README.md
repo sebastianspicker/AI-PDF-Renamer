@@ -40,27 +40,39 @@ If a file is very large (e.g., >15k characters), the text is chunked, partially 
 
 ## Requirements
 
-- **Python 3.7+**  
-- **PyMuPDF (fitz)**  
-- **tiktoken** (for token counting if desired)  
-- **requests** (for calling the local LLM)  
-- **A local LLM** endpoint listening on `http://127.0.0.1:11434/v1/completions`  
+- **Python 3.10+**
+- **requests** (for calling the local LLM)
+- **PyMuPDF (pymupdf / fitz)** (for PDF text extraction)
+- Optional: **tiktoken** (better token counting for truncation)
+- **A local LLM** endpoint listening on `http://127.0.0.1:11434/v1/completions`
 
-Example installation steps (Windows/macOS/Linux):
+## Quickstart (venv)
 
 ```bash
-pip install pymupdf tiktoken requests
-```
-You also need a local service providing JSON completions via HTTP POST. If you do not have a local LLM, adapt the script to another endpoint or an online API.
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -U pip
 
-## Installation ##
+# Install dev tooling + PDF extraction
+python -m pip install -e '.[dev,pdf]'
+
+# Optional: better token counting
+# python -m pip install -e '.[tokens]'
+```
+
+You also need a local service providing JSON completions via HTTP POST. If you do not have a local LLM, adapt the code to another endpoint or an online API.
+
+## Installation
 1. Clone or download this repository.
 2. Place your PDF files into a subfolder, e.g., `./input_files/`.
-3. Ensure you have the supporting JSON files:
+3. Ensure you have the supporting JSON files in the project root:
    - `heuristic_scores.json` (regex-based rules + scoring)
    - `meta_stopwords.json` (words to remove from final filenames)
-4. Adjust any paths as necessary.
-5. Install Python dependencies: `pymupdf`, `requests`, `tiktoken`.
+4. Install dependencies (editable install recommended):
+
+```bash
+python -m pip install -e '.[pdf]'
+```
 
 ## Configuration
 `heuristic_scores.json`
@@ -91,10 +103,18 @@ Specifies words or tokens you never want in filenames (e.g., `"zusammenfassung"`
 - Modify `get_field(prompt, temperature=0.0)` if your endpoint differs.
 
 ## Usage
-1. Run the Script:
-  ```bash
-  python ren.py
-  ```
+1. Run the script (interactive):
+
+```bash
+python ren.py
+```
+
+or via the installed CLI:
+
+```bash
+ai-pdf-renamer --dir ./input_files
+```
+
 2. Interactive Inputs:
    - Directory path (default: `./input_files`)
    - Language (`de` or `en`)
@@ -130,7 +150,17 @@ Specifies words or tokens you never want in filenames (e.g., `"zusammenfassung"`
    - Category
    - Up to 3 keywords
    - Up to 5 final summary tokens
-   - Meta stopwords get filtered before the final naming.
+  - Meta stopwords get filtered before the final naming.
+
+## Development
+
+Run quality checks:
+
+```bash
+ruff check .
+ruff format .
+pytest -q
+```
   
 ## Known Issues
 1. Local LLM Variability
