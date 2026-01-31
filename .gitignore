@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+
+# Virtualenvs
+.venv/
+venv/
+.env/
+
+# Packaging
+build/
+dist/
+*.egg-info/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Logs
+error.log
+
+# Local folders (may contain private PDFs)
+input_files/
+
