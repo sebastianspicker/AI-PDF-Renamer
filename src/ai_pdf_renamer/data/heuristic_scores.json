@@ -1,0 +1,459 @@
+{
+  "patterns": [
+    {
+      "regex": "(?i)\\bschulzeugnis\\b|\\babschlusszeugnis\\b|\\bjahreszeugnis\\b|\\bhalbjahreszeugnis\\b",
+      "category": "schulzeugnis",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bimmatrikulations\\s*bescheinigung\\b|\\bstudien\\s*bescheinigung\\b",
+      "category": "studienbescheinigung",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bbafoeg\\b.*\\bbescheid\\b",
+      "category": "bafoeg_bescheid",
+      "score": 4.5
+    },
+    {
+      "regex": "(?i)\\btranscript of records\\b|\\btranskript of records\\b|\\bleistungsübersicht\\b",
+      "category": "transcript",
+      "score": 4.5
+    },
+    {
+      "regex": "(?i)\\bbachelor\\s*urkunde\\b|\\bmaster\\s*urkunde\\b|\\bdiplom\\s*urkunde\\b|\\bhochschul\\s*abschluss\\b",
+      "category": "hochschulabschluss",
+      "score": 4.5
+    },
+    {
+      "regex": "(?i)\\bpraktikum\\s*bescheinigung\\b",
+      "category": "praktikumsbescheinigung",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bprüfungsanmeldung\\b|\\bpruefungsbescheid\\b",
+      "category": "pruefung_dokument",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bmiet\\s*vertrag\\b",
+      "category": "mietvertrag",
+      "score": 4.5
+    },
+    {
+      "regex": "(?i)\\bnebenkosten\\s*abrechnung\\b",
+      "category": "nebenkostenabrechnung",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bwohnungs\\s*übergabe\\s*protokoll\\b|\\bwohnungs\\s*uebergabe\\s*protokoll\\b",
+      "category": "wohnungsuebergabeprotokoll",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bmiet\\s*bescheinigung\\b|\\bwohnungs\\s*geber\\s*bestätigung\\b",
+      "category": "mietbescheinigung",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bmängelanzeige\\b|\\bmaengelanzeige\\b",
+      "category": "maengelanzeige",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bmieterhöhung\\b|\\bmieterhoehung\\b",
+      "category": "mieterhoehung",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bmiet\\s*kündigung\\b|\\bmiet\\s*kuendigung\\b",
+      "category": "mietkuendigung",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bhausordnung\\b",
+      "category": "hausordnung",
+      "score": 2.5
+    },
+    {
+      "regex": "(?i)\\barbeitsvertrag\\b",
+      "category": "arbeitsvertrag",
+      "score": 4.5
+    },
+    {
+      "regex": "(?i)\\barbeitszeugnis\\b",
+      "category": "arbeitszeugnis",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\b(lohn\\s*abrechnung|gehalts\\s*abrechnung)\\b|\\bentgelt\\s*abrechnung\\b",
+      "category": "gehaltsabrechnung",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bbewerbung\\s*schreiben\\b|\\bbewerbungs\\s*anschreiben\\b|\\blebenslauf\\b",
+      "category": "bewerbung",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bkündigung\\b.*\\barbeitsverhältnis\\b",
+      "category": "kuendigung_arbeit",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\babmahnung\\b.*(arbeit|arbeitsplatz|arbeitnehmer)",
+      "category": "abmahnung_arbeit",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bbescheinigung (über|ueber) (das|ein) beschäftigungsverhältnis\\b",
+      "category": "beschaeftigung_bescheinigung",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bkrankmeldung\\b|\\barbeitsunfähigkeit\\b|\\barbeitsunfaehigkeit\\b",
+      "category": "arbeitsunfaehigkeitsbescheinigung",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\burlaubsantrag\\b",
+      "category": "urlaubsantrag",
+      "score": 2.5
+    },
+    {
+      "regex": "(?i)\\bsteuer\\s*bescheinigung\\b",
+      "category": "steuerbescheinigung_arbeit",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bantrag\\b.*\\b(personal\\s*ausweis|reisepass)\\b",
+      "category": "ausweisantrag",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bfüherschein\\s*antrag\\b|\\bfuehrerschein\\s*erwerb\\b",
+      "category": "fuehrerscheinantrag",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bmelde\\s*bescheinigung\\b",
+      "category": "meldebescheinigung",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bpolizeiliches führungszeugnis\\b|\\bfuehrungszeugnis\\b",
+      "category": "polizeiliches_fuehrungszeugnis",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bsteuer\\s*erklärung\\b|\\bsteuer\\s*erklaerung\\b",
+      "category": "steuererklaerung",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bsteuer\\s*bescheid\\b",
+      "category": "steuerbescheid",
+      "score": 4.5
+    },
+    {
+      "regex": "(?i)\\bantrag auf kindergeld\\b|\\bantrag auf elterngeld\\b|\\bantrag auf wohngeld\\b|\\bantrag alg\\b",
+      "category": "antrag_sozialleistung",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bkonto\\s*eröffnung\\b|\\bkonto\\s*eroeffnung\\b",
+      "category": "kontoeroeffnung",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bkonto\\s*auszug\\b",
+      "category": "kontoauszug",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\büberweisungsformular\\b|\\bueberweisungsformular\\b",
+      "category": "ueberweisungsformular",
+      "score": 2.5
+    },
+    {
+      "regex": "(?i)\\bkredit\\s*antrag\\b|\\bkredit\\s*vertrag\\b",
+      "category": "kreditvertrag",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bschufa\\s*auskunft\\b",
+      "category": "schufa_auskunft",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\blastschriftmandat\\b",
+      "category": "lastschriftmandat",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bfreistellungsauftrag\\b",
+      "category": "freistellungsauftrag",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bversicherung\\s*police\\b|\\bversicherung\\s*schein\\b|\\bversicherungs\\s*vertrag\\b",
+      "category": "versicherungspolice",
+      "score": 4.5
+    },
+    {
+      "regex": "(?i)\\bversicherung\\s*antrag\\b",
+      "category": "versicherungsantrag",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bschadensmeldung\\b",
+      "category": "schadensmeldung",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bkündigung\\b.*versicherung",
+      "category": "versicherung_kuendigung",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bbeitrags\\s*rechnung\\b.*versicherung",
+      "category": "beitragsrechnung_versicherung",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bkranken\\s*versicherung\\b",
+      "category": "krankenversicherung",
+      "score": 4.5
+    },
+    {
+      "regex": "(?i)\\bk[.\\s-]*f[.\\s-]*z[.\\s-]*(versicherung|versichg)\\b",
+      "category": "kfz_versicherung",
+      "score": 4.5
+    },
+    {
+      "regex": "(?i)\\bhaftpflichtversicherung\\b",
+      "category": "haftpflichtversicherung",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bhausratversicherung\\b",
+      "category": "hausratversicherung",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\blebensversicherung\\b",
+      "category": "lebensversicherung",
+      "score": 4.5
+    },
+    {
+      "regex": "(?i)\\bberufsunfähigkeit(s|)\\s*versicherung\\b",
+      "category": "berufsunfaehigkeitsversicherung",
+      "score": 4.5
+    },
+    {
+      "regex": "(?i)\\bunfall\\s*versicherung\\b",
+      "category": "unfallversicherung",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bkauf\\s*vertrag\\b",
+      "category": "kaufvertrag",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\brechnung\\b|\\brechung\\b|\\brechnug\\b|\\bgesamtsumme\\b|\\bbruttobetrag\\b|\\bnettobetrag\\b",
+      "category": "rechnung",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bquittung\\b",
+      "category": "quittung",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bmahnung\\b|\\bzahlungserinnerung\\b",
+      "category": "mahnung",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bwiderruf\\s*erklärung\\b|\\bwiderrufserklaerung\\b",
+      "category": "widerrufserklaerung",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bgarantie\\b|\\bgarantie\\s*urkunde\\b",
+      "category": "garantie",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bgewährleistung\\b|\\bgewaehrleistung\\b",
+      "category": "gewaehrleistung",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bfahrzeugbrief\\b|\\bzulassungsbescheinigung teil ii\\b",
+      "category": "fahrzeugbrief",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bfahrzeugschein\\b|\\bzulassungsbescheinigung teil i\\b",
+      "category": "fahrzeugschein",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bhauptuntersuchungs\\s*bericht\\b|\\bhu-bericht\\b|\\btuev\\b",
+      "category": "tuevbericht",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bauto\\s*kaufvertrag\\b|\\bauto\\s*vertrag\\b",
+      "category": "kaufvertrag_fahrzeug",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bschadensmeldung\\b.*\\bunfall\\b",
+      "category": "unfall_schadensmeldung",
+      "score": 4.5
+    },
+    {
+      "regex": "(?i)\\bgeburts\\s*urkunde\\b",
+      "category": "geburtsurkunde",
+      "score": 4.5
+    },
+    {
+      "regex": "(?i)\\bheirats\\s*urkunde\\b",
+      "category": "heiratsurkunde",
+      "score": 4.5
+    },
+    {
+      "regex": "(?i)\\bscheidungs\\s*urteil\\b",
+      "category": "scheidungsurteil",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bsterbe\\s*urkunde\\b",
+      "category": "sterbeurkunde",
+      "score": 4.5
+    },
+    {
+      "regex": "(?i)\\bpatienten\\s*verfügung\\b|\\bpatientenverfuegung\\b",
+      "category": "patientenverfuegung",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bvorsorge\\s*vollmacht\\b",
+      "category": "vorsorgevollmacht",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bbetreuungs\\s*verfügung\\b|\\bbetreuungs\\s*verfuegung\\b",
+      "category": "betreuungsverfuegung",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bzeugnis\\b|\\bzuegnis\\b|\\bzeignis\\b",
+      "category": "zeugnis",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\burkunde\\b|\\burlunde\\b|\\bur-kunde\\b",
+      "category": "urkunde",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\btestament\\b",
+      "category": "testament",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\babmahnung\\b(?!.*arbeit)",
+      "category": "abmahnung_recht",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bvollmacht\\b|\\bbankvollmacht\\b|\\bprozessvollmacht\\b",
+      "category": "vollmacht",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bmahnbescheid\\b",
+      "category": "mahnbescheid",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\binkasso\\s*schreiben\\b|\\binkasso\\b",
+      "category": "inkasso",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\bklage\\s*schrift\\b|\\bklageerhebung\\b|\\burgteil\\b|\\bbeschluss\\b",
+      "category": "gerichtliches_dokument",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\blieferschein\\b",
+      "category": "lieferschein",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bfrachtbrief\\b",
+      "category": "frachtbrief",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bzoll\\s*papier\\b",
+      "category": "zollpapiere",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bpackliste\\b",
+      "category": "packliste",
+      "score": 2.5
+    },
+    {
+      "regex": "(?i)\\barztbrief\\b|\\bbefund\\b|\\b(medizinischer |medizinischer)bericht\\b",
+      "category": "arztbrief_befund",
+      "score": 4.0
+    },
+    {
+      "regex": "(?i)\\brezept\\b.*\\barzneimittel\\b",
+      "category": "arzneirezept",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bimpfpass\\b|\\bimpfausweis\\b",
+      "category": "impfpass",
+      "score": 3.5
+    },
+    {
+      "regex": "(?i)\\bueberweisung\\b.*facharzt|\\büerweisung facharzt\\b",
+      "category": "arztueberweisung",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bpatientenquittung\\b",
+      "category": "patientenquittung",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bmitglieds\\s*antrag\\b|\\bverein\\s*eintritt\\b",
+      "category": "mitgliedsantrag_verein",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\bmitgliedschafts\\s*bescheinigung\\b",
+      "category": "mitgliedschaft_verein",
+      "score": 2.5
+    },
+    {
+      "regex": "(?i)\\bkündigung\\b.*(mitgliedschaft|verein)",
+      "category": "vereinskuendigung",
+      "score": 3.0
+    },
+    {
+      "regex": "(?i)\\beinladung\\s*schreiben\\b.*(mitgliederversammlung|vereinsaktivitaeten|vereinsaktivitäten)",
+      "category": "vereins_einladung",
+      "score": 2.0
+    }
+  ]
+}
