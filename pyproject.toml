@@ -35,6 +35,9 @@ package-dir = { "" = "src" }
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+ai_pdf_renamer = ["data/*.json"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
@@ -49,4 +52,3 @@ ignore = [
   # Allow explicit exception chaining omissions in a small codebase.
   "B904",
 ]
-

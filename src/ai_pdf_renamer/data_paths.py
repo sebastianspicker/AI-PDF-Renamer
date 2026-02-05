@@ -31,7 +31,19 @@ def data_dir() -> Path:
     return project_root(Path(__file__).resolve()).resolve()
 
 
+def package_data_path(filename: str) -> Path:
+    return Path(__file__).resolve().parent / "data" / filename
+
+
 def data_path(filename: str) -> Path:
     if filename not in DATA_FILES:
         raise ValueError(f"Unsupported data file: {filename}")
-    return data_dir() / filename
+    candidate = data_dir() / filename
+    if candidate.exists():
+        return candidate
+
+    packaged = package_data_path(filename)
+    if packaged.exists():
+        return packaged
+
+    return candidate

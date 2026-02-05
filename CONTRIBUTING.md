@@ -17,7 +17,10 @@ ruff check .
 pytest -q
 ```
 
+## Security
+
+See `SECURITY.md` for reporting guidelines and `docs/RUNBOOK.md` for security checks.
+
 ## Notes
 
 - Please do not commit PDFs (use `input_files/` locally; it is gitignored).
-

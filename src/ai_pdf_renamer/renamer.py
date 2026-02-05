@@ -164,6 +164,11 @@ def rename_pdfs_in_directory(
     config: RenamerConfig,
 ) -> None:
     path = Path(directory)
+    if not path.exists():
+        raise FileNotFoundError(f"Directory does not exist: {path}")
+    if not path.is_dir():
+        raise NotADirectoryError(f"Not a directory: {path}")
+
     files = [
         p
         for p in path.iterdir()
