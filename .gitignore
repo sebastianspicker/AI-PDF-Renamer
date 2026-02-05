@@ -71,3 +71,12 @@ input_files/
 .idea/
 .DS_Store
 Thumbs.db
+
+# docs (local findings/logs/decisions)
+DECISIONS.md
+FINDINGS.md
+LOG.md
+REFACTOR_PLAN.md
+PHYSICS_AUDIT.md
+validation.md
+HANDOFF.md
