@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Callable
 
 from .logging_utils import setup_logging
 from .renamer import RenamerConfig, rename_pdfs_in_directory
@@ -28,6 +29,26 @@ def _build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def _prompt_choice(
+    prompt: str,
+    *,
+    choices: list[str],
+    default: str,
+    normalize: Callable[[str], str] | None = None,
+) -> str:
+    mapping = {normalize(c) if normalize else c: c for c in choices}
+    default_key = normalize(default) if normalize else default
+
+    while True:
+        value = input(prompt).strip()
+        if not value:
+            return mapping[default_key]
+        key = normalize(value) if normalize else value
+        if key in mapping:
+            return mapping[key]
+        print(f"Invalid choice: {value}. Valid choices: {', '.join(choices)}")
+
+
 def main(argv: list[str] | None = None) -> None:
     setup_logging()
 
@@ -43,16 +64,23 @@ def main(argv: list[str] | None = None) -> None:
 
     language = args.language
     if language is None:
-        language = input("Language (de/en, default: de): ").strip().lower() or "de"
+        language = _prompt_choice(
+            "Language (de/en, default: de): ",
+            choices=["de", "en"],
+            default="de",
+            normalize=str.lower,
+        )
 
     desired_case = args.desired_case
     if desired_case is None:
-        desired_case = (
-            input(
+        desired_case = _prompt_choice(
+            (
                 "Desired case format (camelCase, kebabCase, snakeCase, "
                 "default: kebabCase): "
-            ).strip()
-            or "kebabCase"
+            ),
+            choices=["camelCase", "kebabCase", "snakeCase"],
+            default="kebabCase",
+            normalize=str.lower,
         )
 
     project = args.project
@@ -69,4 +97,7 @@ def main(argv: list[str] | None = None) -> None:
         project=project,
         version=version,
     )
-    rename_pdfs_in_directory(directory, config=config)
+    try:
+        rename_pdfs_in_directory(directory, config=config)
+    except (FileNotFoundError, NotADirectoryError) as exc:
+        raise SystemExit(str(exc)) from exc

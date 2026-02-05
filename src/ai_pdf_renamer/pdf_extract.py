@@ -91,6 +91,6 @@ def pdf_to_text(filepath: str | Path, *, max_tokens: int = 15000) -> str:
 
     content = "\n".join(pieces).strip()
     if not content:
-        content = "Content is empty or contains only whitespace."
+        return ""
 
     return _shrink_to_token_limit(content, max_tokens=max_tokens)

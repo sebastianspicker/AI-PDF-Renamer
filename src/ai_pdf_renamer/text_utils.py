@@ -116,6 +116,11 @@ def clean_token(text: str) -> str:
 
 def convert_case(tokens: Iterable[str], desired_case: str) -> str:
     words = [w for w in (clean_token(t) for t in tokens) if w and w != "na"]
+    if desired_case == "camelCase":
+        split_words: list[str] = []
+        for word in words:
+            split_words.extend([w for w in word.split("_") if w])
+        words = split_words
     if not words:
         return ""
 

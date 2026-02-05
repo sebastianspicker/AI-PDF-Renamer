@@ -10,6 +10,7 @@ from ai_pdf_renamer.text_utils import (
     extract_date_from_content,
     normalize_keywords,
     subtract_tokens,
+    tokens_similar,
 )
 
 
@@ -52,3 +53,14 @@ def test_subtract_tokens_removes_similar() -> None:
 def test_convert_case_kebab_and_camel() -> None:
     assert convert_case(["Hello", "World"], "kebabCase") == "hello-world"
     assert convert_case(["Hello", "World"], "camelCase") == "helloWorld"
+
+
+def test_convert_case_camel_splits_underscores() -> None:
+    assert convert_case(["foo_bar", "baz"], "camelCase") == "fooBarBaz"
+
+
+def test_tokens_similar_prefix_tolerance() -> None:
+    assert tokens_similar("invoice", "invoice")
+    assert tokens_similar("invoice", "invoi")
+    assert tokens_similar("invoi", "invoice")
+    assert not tokens_similar("invoice", "receipt")
