@@ -33,6 +33,10 @@ __pypackages__/
 coverage.xml
 htmlcov/
 .tox/
+test-results/
+junit.xml
+pytest.xml
+*.sarif
 
 # Logs
 error.log
