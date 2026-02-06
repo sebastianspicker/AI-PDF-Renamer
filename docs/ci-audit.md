@@ -9,6 +9,6 @@
 - 2026-02-05: `CI` workflow succeeded.
 
 ## Root Cause And Fix Plan
-| Workflow | Failure | Root Cause | Fix Plan | Risk | Verify |
-| --- | --- | --- | --- | --- | --- |
-| Security | TruffleHog job failed on push | The job used a shallow checkout with a diff-based scan. TruffleHog needs access to the base commit range; with `fetch-depth: 1` it can fail. Logs are not accessible via the public API without admin rights, but a filesystem scan shows no verified secrets in the repo. | Fetch full history in the TruffleHog job and use explicit commit SHAs for PR and push events. Provide a fallback filesystem scan for initial commits and scheduled/manual runs. | Low. Full history fetch is small for this repo. | `docker run --rm -v "$PWD:/repo" trufflesecurity/trufflehog:3.92.5 filesystem /repo --only-verified` and re-run the workflow. |
+| Workflow | Failure | Root Cause | Fix Plan | Risk | Verify | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Security | TruffleHog job failed on push | The job used a shallow checkout with a diff-based scan. TruffleHog needs access to the base commit range; with `fetch-depth: 1` it can fail. Logs are not accessible via the public API without admin rights, but a filesystem scan shows no verified secrets in the repo. | Fetch full history in the TruffleHog job and use explicit commit SHAs for PR and push events. Provide a fallback filesystem scan for initial commits and scheduled/manual runs. | Low. Full history fetch is small for this repo. | `docker run --rm -v "$PWD:/repo" trufflesecurity/trufflehog:3.92.5 filesystem /repo --only-verified` and re-run the workflow. | Fixed in commit `cfdd3e4` (local checks green). |
