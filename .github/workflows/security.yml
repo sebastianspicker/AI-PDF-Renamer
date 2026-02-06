@@ -8,6 +8,10 @@ on:
     - cron: "0 6 * * 1"
   workflow_dispatch:
 
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -15,6 +19,7 @@ jobs:
   codeql:
     name: CodeQL (SAST)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
       security-events: write
@@ -33,6 +38,7 @@ jobs:
     name: Dependency Review (PR only)
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    timeout-minutes: 5
     permissions:
       contents: read
       pull-requests: read
@@ -47,6 +53,7 @@ jobs:
   pip-audit:
     name: pip-audit (SCA)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
@@ -57,20 +64,48 @@ jobs:
           cache: pip
           cache-dependency-path: requirements.txt
       - name: Install pip-audit
-        run: python -m pip install -U pip pip-audit
+        run: |
+          set -euo pipefail
+          python -m pip install -U pip pip-audit
       - name: Audit requirements
-        run: pip-audit -r requirements.txt
+        run: |
+          set -euo pipefail
+          pip-audit -r requirements.txt
 
   trufflehog:
     name: TruffleHog (Secret Scan)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Scan
+        with:
+          fetch-depth: 0
+      - name: Scan (PR diff)
+        if: github.event_name == 'pull_request'
         uses: trufflesecurity/trufflehog@116e7171542d2f1dad8810f00dcfacbe0b809183 # v3.92.5
         with:
           path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
+          base: ${{ github.event.pull_request.base.sha }}
+          head: ${{ github.event.pull_request.head.sha }}
+          extra_args: --only-verified
+      - name: Scan (Push diff)
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        uses: trufflesecurity/trufflehog@116e7171542d2f1dad8810f00dcfacbe0b809183 # v3.92.5
+        with:
+          path: ./
+          base: ${{ github.event.before }}
+          head: ${{ github.sha }}
+          extra_args: --only-verified
+      - name: Scan (Push initial)
+        if: github.event_name == 'push' && github.event.before == '0000000000000000000000000000000000000000'
+        uses: trufflesecurity/trufflehog@116e7171542d2f1dad8810f00dcfacbe0b809183 # v3.92.5
+        with:
+          path: ./
+          extra_args: --only-verified
+      - name: Scan (Scheduled/Manual)
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        uses: trufflesecurity/trufflehog@116e7171542d2f1dad8810f00dcfacbe0b809183 # v3.92.5
+        with:
+          path: ./
           extra_args: --only-verified
