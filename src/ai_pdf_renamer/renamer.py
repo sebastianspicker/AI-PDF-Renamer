@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import errno
 import json
 import logging
 import os
+import shutil
 from dataclasses import dataclass
 from datetime import date
 from functools import lru_cache
@@ -33,18 +35,29 @@ logger = logging.getLogger(__name__)
 
 def load_meta_stopwords(path: str | Path) -> Stopwords:
     data = json.loads(Path(path).read_text(encoding="utf-8"))
-    words = {str(w).lower() for w in data.get("stopwords", []) if str(w).strip()}
+    raw = data.get("stopwords", [])
+    if not isinstance(raw, list):
+        raw = []
+    words = {str(w).lower() for w in raw if str(w).strip()}
     return Stopwords(words=words)
 
 
-@lru_cache(maxsize=1)
+@lru_cache(maxsize=32)
+def _stopwords_cached(path_str: str) -> Stopwords:
+    return load_meta_stopwords(Path(path_str))
+
+
 def default_stopwords() -> Stopwords:
-    return load_meta_stopwords(data_path("meta_stopwords.json"))
+    return _stopwords_cached(str(data_path("meta_stopwords.json")))
 
 
-@lru_cache(maxsize=1)
+@lru_cache(maxsize=32)
+def _heuristic_scorer_cached(path_str: str) -> HeuristicScorer:
+    return HeuristicScorer(load_heuristic_rules(Path(path_str)))
+
+
 def default_heuristic_scorer() -> HeuristicScorer:
-    return HeuristicScorer(load_heuristic_rules(data_path("heuristic_scores.json")))
+    return _heuristic_scorer_cached(str(data_path("heuristic_scores.json")))
 
 
 @dataclass(frozen=True)
@@ -174,7 +187,14 @@ def rename_pdfs_in_directory(
         for p in path.iterdir()
         if p.is_file() and p.suffix.lower() == ".pdf" and not p.name.startswith(".")
     ]
-    files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+
+    def _mtime_key(p: Path) -> float:
+        try:
+            return p.stat().st_mtime
+        except OSError:
+            return 0.0
+
+    files.sort(key=_mtime_key, reverse=True)
 
     for file_path in files:
         logger.info("Processing file: %s", file_path)
@@ -187,10 +207,21 @@ def rename_pdfs_in_directory(
         base = new_base
         counter = 1
         target = file_path.with_name(new_base + file_path.suffix)
-        while target.exists():
-            new_base = f"{base}_{counter}"
-            target = file_path.with_name(new_base + file_path.suffix)
-            counter += 1
-
-        os.rename(file_path, target)
+        while True:
+            while target.exists():
+                new_base = f"{base}_{counter}"
+                target = file_path.with_name(new_base + file_path.suffix)
+                counter += 1
+            try:
+                os.rename(file_path, target)
+                break
+            except FileExistsError:
+                counter += 1
+                target = file_path.with_name(f"{base}_{counter}" + file_path.suffix)
+            except OSError as e:
+                if e.errno == errno.EXDEV:
+                    shutil.copy2(file_path, target)
+                    file_path.unlink()
+                    break
+                raise
         logger.info("Renamed '%s' to '%s'", file_path.name, target.name)

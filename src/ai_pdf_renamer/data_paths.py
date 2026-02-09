@@ -46,4 +46,7 @@ def data_path(filename: str) -> Path:
     if packaged.exists():
         return packaged
 
-    return candidate
+    raise FileNotFoundError(
+        f"Data file {filename!r} not found. Looked in: {candidate} and {packaged}. "
+        "Set AI_PDF_RENAMER_DATA_DIR to a directory containing the JSON files, or run from the project root."
+    )
