@@ -50,12 +50,22 @@ def _sanitize_json_string_value(response: str, *, key: str) -> str:
     if close_brace == -1:
         return sanitized
 
-    last_quote = sanitized.rfind('"', 0, close_brace)
+    # Find closing quote: the last unescaped " before } (respects \" in value).
+    i = first_quote + 1
+    last_quote = -1
+    while i < close_brace and i < len(sanitized):
+        if sanitized[i] == "\\" and i + 1 < len(sanitized):
+            i += 2
+            continue
+        if sanitized[i] == '"':
+            last_quote = i
+        i += 1
     if last_quote <= first_quote:
         return sanitized
 
     raw_value = sanitized[first_quote + 1 : last_quote]
-    fixed_value = raw_value.replace('"', '\\"')
+    # Escape only unescaped quotes so existing \" is preserved.
+    fixed_value = re.sub(r'(?<!\\)"', r'\\"', raw_value)
     return sanitized[: first_quote + 1] + fixed_value + sanitized[last_quote:]
 
 

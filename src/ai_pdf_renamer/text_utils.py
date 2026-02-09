@@ -12,26 +12,30 @@ _DATE_RE_DMY = re.compile(r"\b(\d{1,2})[./-](\d{1,2})[./-](\d{4})\b")
 def extract_date_from_content(content: str, *, today: date | None = None) -> str:
     """
     Searches the text for date formats (YYYY-MM-DD or DD.MM.YYYY) and returns
-    'YYYY-MM-DD'. If no date is found (or parsing fails), returns today's date.
+    'YYYY-MM-DD'. If no date is found, parsing fails, or the date is invalid
+    (e.g. 2024-02-30), returns today's date.
     """
     if today is None:
         today = date.today()
 
+    def make_ymd(y: str, m: str, d: str) -> str | None:
+        try:
+            dte = date(int(y), int(m), int(d))
+            return dte.strftime("%Y-%m-%d")
+        except (ValueError, TypeError):
+            return None
+
     match = _DATE_RE_YMD.search(content)
     if match:
         year, month, day = match.groups()
-        try:
-            return f"{int(year):04d}-{int(month):02d}-{int(day):02d}"
-        except ValueError:
-            pass
+        if (parsed := make_ymd(year, month, day)) is not None:
+            return parsed
 
     match = _DATE_RE_DMY.search(content)
     if match:
         day, month, year = match.groups()
-        try:
-            return f"{int(year):04d}-{int(month):02d}-{int(day):02d}"
-        except ValueError:
-            pass
+        if (parsed := make_ymd(year, month, day)) is not None:
+            return parsed
 
     return today.strftime("%Y-%m-%d")
 

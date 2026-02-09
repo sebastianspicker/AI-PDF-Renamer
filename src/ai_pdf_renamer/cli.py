@@ -36,7 +36,12 @@ def _prompt_choice(
     default: str,
     normalize: Callable[[str], str] | None = None,
 ) -> str:
-    mapping = {normalize(c) if normalize else c: c for c in choices}
+    # First occurrence wins when normalized keys collide (e.g. different casing).
+    mapping: dict[str, str] = {}
+    for c in choices:
+        key = normalize(c) if normalize else c
+        if key not in mapping:
+            mapping[key] = c
     default_key = normalize(default) if normalize else default
 
     while True:
