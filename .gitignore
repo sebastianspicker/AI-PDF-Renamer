@@ -76,9 +76,8 @@ input_files/
 .DS_Store
 Thumbs.db
 .cursor/
-.codex/
 
-# docs (local findings/logs/decisions)
+# Local process artifacts (do not commit)
 DECISIONS.md
 FINDINGS.md
 LOG.md
