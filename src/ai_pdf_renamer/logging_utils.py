@@ -19,9 +19,14 @@ def setup_logging(
         root.addHandler(console_handler)
 
     if not any(isinstance(h, logging.FileHandler) for h in root.handlers):
-        file_handler = logging.FileHandler(str(log_file), encoding="utf-8")
-        file_handler.setLevel(level)
-        file_handler.setFormatter(
-            logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-        )
-        root.addHandler(file_handler)
+        try:
+            log_path = Path(log_file)
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            file_handler = logging.FileHandler(str(log_file), encoding="utf-8")
+            file_handler.setLevel(level)
+            file_handler.setFormatter(
+                logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+            )
+            root.addHandler(file_handler)
+        except OSError:
+            root.debug("Could not create file handler for %s", log_file)

@@ -43,6 +43,8 @@ def _prompt_choice(
         if key not in mapping:
             mapping[key] = c
     default_key = normalize(default) if normalize else default
+    if default_key not in mapping:
+        mapping[default_key] = default
 
     while True:
         value = input(prompt).strip()
@@ -104,5 +106,5 @@ def main(argv: list[str] | None = None) -> None:
     )
     try:
         rename_pdfs_in_directory(directory, config=config)
-    except (FileNotFoundError, NotADirectoryError) as exc:
+    except (FileNotFoundError, NotADirectoryError, OSError) as exc:
         raise SystemExit(str(exc)) from exc

@@ -115,7 +115,7 @@ class LocalLLMClient:
                 if isinstance(data, dict)
                 else ""
             ).strip()
-        except Exception as exc:
+        except (requests.RequestException, json.JSONDecodeError) as exc:
             logger.error("Error obtaining completion: %s", exc)
             return ""
 
