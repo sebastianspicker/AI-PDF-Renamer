@@ -20,9 +20,9 @@ List derived from documentation, known limitations, and code review. Each item c
 
 ### 2. [Bug/Operational] CLI is implicitly interactive; blocks when flags are omitted
 
-**Description:** If `--dir`, `--language`, `--case`, or optional `--project`/`--version` are omitted, the tool prompts for input. There is no non-interactive default for “optional” parameters.
+**Description:** If `--dir`, `--language`, `--case`, or optional `--project`/`--version` are omitted, the tool prompts for input. There is no non-interactive default for "optional" parameters.
 
-**Impact:** In CI, cron, or any run without a TTY/stdin, the process can block indefinitely. “Optional” in docs does not match behavior (no silent default).
+**Impact:** In CI, cron, or any run without a TTY/stdin, the process can block indefinitely. "Optional" in docs does not match behavior (no silent default).
 
 **Fix:** Provide true defaults for optional flags (e.g. empty project/version when not passed) and document; for required params either require flags in non-interactive mode or document that stdin must be available.
 
@@ -100,11 +100,11 @@ List derived from documentation, known limitations, and code review. Each item c
 
 ---
 
-### 9. [Enhancement] Distinguish “empty PDF” from “extraction failed”
+### 9. [Enhancement] Distinguish "empty PDF" from "extraction failed"
 
-**Description:** When `pdf_to_text()` returns `""`, the renamer logs “PDF appears to be empty. Skipping.” and continues. The same behavior occurs when the PDF could not be opened, is encrypted, or extraction raised and was swallowed inside `pdf_to_text()`.
+**Description:** When `pdf_to_text()` returns `""`, the renamer logs "PDF appears to be empty. Skipping." and continues. The same behavior occurs when the PDF could not be opened, is encrypted, or extraction raised and was swallowed inside `pdf_to_text()`.
 
-**Fix:** Differentiate: e.g. let `pdf_to_text()` signal failure (return a sentinel or raise), or document that “empty” includes extraction failure; consider logging at WARNING when content is empty and the file is non-zero size.
+**Fix:** Differentiate: e.g. let `pdf_to_text()` signal failure (return a sentinel or raise), or document that "empty" includes extraction failure; consider logging at WARNING when content is empty and the file is non-zero size.
 
 **Sources:** `src/ai_pdf_renamer/renamer.py:199-205`, `src/ai_pdf_renamer/pdf_extract.py`
 
@@ -114,7 +114,7 @@ List derived from documentation, known limitations, and code review. Each item c
 
 **Description:** A single exception during PDF extraction or filename generation (e.g. malformed JSON in data, LLM crash) aborts the entire directory run with no summary of which files succeeded or failed.
 
-**Fix:** Wrap per-file logic (extract → generate_filename → rename) in try/except; on failure log the file and error, then continue with the next file; optionally print a short summary at the end (e.g. “Renamed N, skipped M, failed K”).
+**Fix:** Wrap per-file logic (extract → generate_filename → rename) in try/except; on failure log the file and error, then continue with the next file; optionally print a short summary at the end (e.g. "Renamed N, skipped M, failed K").
 
 **Sources:** `src/ai_pdf_renamer/renamer.py:199-236`
 
@@ -122,7 +122,7 @@ List derived from documentation, known limitations, and code review. Each item c
 
 ### 11. [Enhancement] `--dir` help text and default behavior aligned
 
-**Description:** Help says “default: ./input_files” but the parser default is `None` and the actual default is applied only after prompting when `--dir` is omitted.
+**Description:** Help says "default: ./input_files" but the parser default is `None` and the actual default is applied only after prompting when `--dir` is omitted.
 
 **Fix:** Document that when `--dir` is omitted the tool prompts, or implement a real default (e.g. `./input_files`) when not in interactive mode.
 
@@ -144,7 +144,7 @@ List derived from documentation, known limitations, and code review. Each item c
 
 **Description:** When no PDFs are found or all are skipped, there is no explicit user-facing summary; success vs. no-op can be ambiguous.
 
-**Fix:** Log or print a one-line summary at end (e.g. “No PDFs found in …” or “Processed N files, renamed M, skipped K”).
+**Fix:** Log or print a one-line summary at end (e.g. "No PDFs found in …" or "Processed N files, renamed M, skipped K").
 
 **Sources:** `src/ai_pdf_renamer/renamer.py:185-190,199-205`
 
@@ -176,11 +176,11 @@ List derived from documentation, known limitations, and code review. Each item c
 
 ---
 
-### 16. [Bug] Security: proxy can route “local” LLM traffic off-device
+### 16. [Bug] Security: proxy can route "local" LLM traffic off-device
 
 **Description:** `requests.post(self.base_url, ...)` honors proxy env vars (e.g. `HTTP_PROXY`). If the environment has a proxy and loopback is not in `NO_PROXY`, requests to `http://127.0.0.1:11434` can be sent via the proxy, exposing PDF-derived prompt content off-device.
 
-**Impact:** Document text (and thus potentially sensitive content) may leave the machine despite “local” LLM configuration.
+**Impact:** Document text (and thus potentially sensitive content) may leave the machine despite "local" LLM configuration.
 
 **Fix:** Disable proxy for the LLM client (e.g. pass `trust_env=False` or set session proxies to empty for this host); document in README/SECURITY and recommend `NO_PROXY` for 127.0.0.1 when using a local endpoint.
 
@@ -222,7 +222,7 @@ List derived from documentation, known limitations, and code review. Each item c
 
 ### 20. [Bug] LLM JSON salvage can corrupt list/multi-key responses
 
-**Description:** The sanitizer’s “single-key string” salvage path is used after any JSON decode error. For list values or multi-key objects, the salvage logic (first/last quote scan, escape inner quotes) can produce wrong but parseable JSON and thus wrong summary/keywords/category in filenames.
+**Description:** The sanitizer's "single-key string" salvage path is used after any JSON decode error. For list values or multi-key objects, the salvage logic (first/last quote scan, escape inner quotes) can produce wrong but parseable JSON and thus wrong summary/keywords/category in filenames.
 
 **Fix:** Restrict salvage to responses that look like single-key string objects; for list or multi-key decode failures, do not run salvage and return None (retry or use fallback).
 
@@ -230,13 +230,13 @@ List derived from documentation, known limitations, and code review. Each item c
 
 ---
 
-### 21. [Bug] LLM always invoked; no CLI “off” switch
+### 21. [Bug] LLM always invoked; no CLI "off" switch
 
-**Description:** The main rename flow always uses the LLM (summary, keywords, category, final_summary_tokens) when processing a non-empty PDF. Docs describe the LLM as “optional,” but there is no flag or config to disable sending document text to HTTP.
+**Description:** The main rename flow always uses the LLM (summary, keywords, category, final_summary_tokens) when processing a non-empty PDF. Docs describe the LLM as "optional," but there is no flag or config to disable sending document text to HTTP.
 
-**Impact:** Users may assume “optional” means off by default; in practice every run with sufficient text triggers HTTP requests with document content.
+**Impact:** Users may assume "optional" means off by default; in practice every run with sufficient text triggers HTTP requests with document content.
 
-**Fix:** Add a CLI/config option to disable LLM (e.g. heuristic-only mode); document default as “LLM on when endpoint is available” and how to run without it.
+**Fix:** Add a CLI/config option to disable LLM (e.g. heuristic-only mode); document default as "LLM on when endpoint is available" and how to run without it.
 
 **Sources:** README, `src/ai_pdf_renamer/renamer.py:90-116`
 
@@ -244,7 +244,7 @@ List derived from documentation, known limitations, and code review. Each item c
 
 ### 22. [Bug] PDF extraction swallows all exceptions (silent partial/empty)
 
-**Description:** In `_extract_pages`, each extraction path (`get_text("text")`, blocks, rawdict) is wrapped in `except Exception: pass`. Any failure yields partial or empty text with no error log, and the caller cannot tell “empty PDF” from “extraction failed.”
+**Description:** In `_extract_pages`, each extraction path (`get_text("text")`, blocks, rawdict) is wrapped in `except Exception: pass`. Any failure yields partial or empty text with no error log, and the caller cannot tell "empty PDF" from "extraction failed."
 
 **Fix:** At minimum log at WARNING on exception; optionally propagate a sentinel or raise so the renamer can distinguish empty from error.
 
@@ -300,7 +300,7 @@ List derived from documentation, known limitations, and code review. Each item c
 | Empty or `na` in filenames | LLM not running / non-JSON / parsing strict | Start LLM, check logs; §3, §23 |
 | Data files not found | Wrong cwd or missing `AI_PDF_RENAMER_DATA_DIR` | Set env or run from repo root; README Troubleshooting |
 | Traceback on run | JSON decode, ValueError, or LLM response shape | Fix data JSON; §6, §8, §15 |
-| “PDF appears to be empty” | Actually empty or extraction failed | Check file; §9, §22 |
+| "PDF appears to be empty" | Actually empty or extraction failed | Check file; §9, §22 |
 | Rename fails (e.g. ENAMETOOLONG) | Filename too long | §12; cap length or shorten project/version |
 | Block/hang | Missing flags in non-interactive run | Pass all args or ensure stdin; §2 |
 | Accidental rename in cwd | `--dir ""` | Reject empty dir; §1 |

@@ -17,10 +17,11 @@ YYYYMMDD-category-keywords-summary.pdf
 7. [How It Works](#how-it-works)
 8. [Development](#development)
 9. [Testing](#testing)
-10. [Security](#security)
-11. [Troubleshooting](#troubleshooting)
-12. [Known Issues](#known-issues)
-13. [Potential Improvements](#potential-improvements)
+10. [Validation (build / run / test)](#validation-build--run--test)
+11. [Security](#security)
+12. [Troubleshooting](#troubleshooting)
+13. [Known issues and fixes](#known-issues-and-fixes)
+14. [Potential Improvements](#potential-improvements)
 
 ## Overview
 
@@ -137,6 +138,31 @@ pytest -q
 pytest -q
 ```
 
+## Validation (build / run / test)
+
+From the project root:
+
+```bash
+# Install with dev and PDF extras
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+python -m pip install -U pip
+python -m pip install -e '.[dev,pdf]'
+
+# Lint and test (same as CI)
+ruff format --check .
+ruff check .
+pytest -q
+
+# Optional: build wheel/sdist
+python -m pip install -U build
+python -m build
+
+# Run the tool (interactive or with args)
+python ren.py
+# or: ai-pdf-renamer --dir ./input_files --language en --case kebabCase
+```
+
 ## Security
 
 - This tool can send document text to an LLM endpoint. Use a local endpoint if you need data to stay on-device.
@@ -146,7 +172,7 @@ pytest -q
   - `pip-audit` (SCA)
   - TruffleHog (secret scanning)
 
-See `docs/RUNBOOK.md` for commands and details, and `SECURITY.md` for reporting guidance.
+See `docs/RUNBOOK.md` for runbook commands and `SECURITY.md` for reporting guidance.
 
 ## Troubleshooting
 
@@ -157,7 +183,11 @@ See `docs/RUNBOOK.md` for commands and details, and `SECURITY.md` for reporting 
 - **Data files not found**
   - Ensure the JSON files exist in the package or set `AI_PDF_RENAMER_DATA_DIR`.
 
-## Known Issues
+## Known issues and fixes
+
+For a detailed list of known bugs, required fixes, and improvements, see **[BUGS_AND_FIXES.md](BUGS_AND_FIXES.md)**.
+
+Summary:
 
 1. **LLM variability**
    - Some local LLMs return non-JSON or partial answers. The code retries with fallback prompts but may still return `na`.

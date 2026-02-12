@@ -7,7 +7,7 @@ PYTEST ?= $(PYTHON) -m pytest
 
 install-dev:
 	$(PIP) install -U pip
-	$(PIP) install -e '.[dev]'
+	$(PIP) install -e '.[dev,pdf]'
 
 lint:
 	$(RUFF) format --check .

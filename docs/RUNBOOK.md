@@ -71,4 +71,4 @@ python -m build
 - Empty or low-quality LLM output:
   - Verify the local LLM endpoint is running and returns JSON with the expected key.
 - Data files not found:
-  - Ensure the JSON files exist at repo root or set `AI_PDF_RENAMER_DATA_DIR`.
+  - The package ships with JSON data in `src/ai_pdf_renamer/data/`. Run from the project root or set `AI_PDF_RENAMER_DATA_DIR`.
