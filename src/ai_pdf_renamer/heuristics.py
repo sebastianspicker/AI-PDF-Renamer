@@ -19,8 +19,11 @@ class HeuristicRule:
 def load_heuristic_rules(path: str | Path) -> list[HeuristicRule]:
     data = json.loads(Path(path).read_text(encoding="utf-8"))
     rules: list[HeuristicRule] = []
+    raw_patterns = data.get("patterns", [])
+    if not isinstance(raw_patterns, list):
+        raw_patterns = []
 
-    for entry in data.get("patterns", []):
+    for entry in raw_patterns:
         regex = entry.get("regex")
         category = entry.get("category")
         score = entry.get("score")

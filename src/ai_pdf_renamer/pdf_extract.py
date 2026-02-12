@@ -43,6 +43,21 @@ def pdf_to_text(filepath: str | Path, *, max_tokens: int = 15000) -> str:
         logger.error("Error opening file %s: %s", path, exc)
         return ""
 
+    try:
+        pieces = _extract_pages(doc, path)
+    finally:
+        closer = getattr(doc, "close", None)
+        if callable(closer):
+            closer()
+
+    content = "\n".join(pieces).strip()
+    if not content:
+        return ""
+
+    return _shrink_to_token_limit(content, max_tokens=max_tokens)
+
+
+def _extract_pages(doc, path: Path) -> list[str]:
     pieces: list[str] = []
     for page_number in range(doc.page_count):
         try:
@@ -89,8 +104,4 @@ def pdf_to_text(filepath: str | Path, *, max_tokens: int = 15000) -> str:
         else:
             logger.info("Page %s in %s yields no text.", page_number, path)
 
-    content = "\n".join(pieces).strip()
-    if not content:
-        return ""
-
-    return _shrink_to_token_limit(content, max_tokens=max_tokens)
+    return pieces

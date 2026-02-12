@@ -221,7 +221,16 @@ def rename_pdfs_in_directory(
             except OSError as e:
                 if e.errno == errno.EXDEV:
                     shutil.copy2(file_path, target)
-                    file_path.unlink()
+                    try:
+                        file_path.unlink()
+                    except OSError as unlink_err:
+                        try:
+                            target.unlink()
+                        except OSError:
+                            pass
+                        raise OSError(
+                            f"Cross-filesystem rename: copied to {target} but could not remove source {file_path}: {unlink_err}"
+                        ) from unlink_err
                     break
                 raise
         logger.info("Renamed '%s' to '%s'", file_path.name, target.name)

@@ -118,7 +118,12 @@ def clean_token(text: str) -> str:
     return text.lower()
 
 
+_VALID_CASES = frozenset({"camelCase", "kebabCase", "snakeCase"})
+
+
 def convert_case(tokens: Iterable[str], desired_case: str) -> str:
+    if desired_case not in _VALID_CASES:
+        raise ValueError(f"Unknown desired_case: {desired_case!r}. Use one of: {sorted(_VALID_CASES)}")
     words = [w for w in (clean_token(t) for t in tokens) if w and w != "na"]
     if desired_case == "camelCase":
         split_words: list[str] = []
@@ -134,7 +139,6 @@ def convert_case(tokens: Iterable[str], desired_case: str) -> str:
         return first + rest
     if desired_case == "snakeCase":
         return "_".join(w.lower() for w in words)
-    # default: kebabCase
     return "-".join(w.lower() for w in words)
 
 

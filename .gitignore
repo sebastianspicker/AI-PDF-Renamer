@@ -76,6 +76,7 @@ input_files/
 .DS_Store
 Thumbs.db
 .cursor/
+.codex/
 
 # docs (local findings/logs/decisions)
 DECISIONS.md
