@@ -229,7 +229,8 @@ def rename_pdfs_in_directory(
                         except OSError:
                             pass
                         raise OSError(
-                            f"Cross-filesystem rename: copied to {target} but could not remove source {file_path}: {unlink_err}"
+                            f"Cross-filesystem rename: copied to {target}, "
+                            f"could not remove source {file_path}: {unlink_err}"
                         ) from unlink_err
                     break
                 raise
