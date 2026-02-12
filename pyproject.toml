@@ -7,7 +7,7 @@ name = "ai-pdf-renamer"
 version = "0.1.0"
 description = "Rename PDFs based on extracted text, heuristic scoring, and an optional local LLM."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 license = { file = "LICENSE" }
 authors = [{ name = "sebastian" }]
 dependencies = [
@@ -44,7 +44,7 @@ addopts = "-q"
 
 [tool.ruff]
 line-length = 88
-target-version = "py311"
+target-version = "py313"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]

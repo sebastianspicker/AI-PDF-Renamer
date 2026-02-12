@@ -123,7 +123,10 @@ _VALID_CASES = frozenset({"camelCase", "kebabCase", "snakeCase"})
 
 def convert_case(tokens: Iterable[str], desired_case: str) -> str:
     if desired_case not in _VALID_CASES:
-        raise ValueError(f"Unknown desired_case: {desired_case!r}. Use one of: {sorted(_VALID_CASES)}")
+        raise ValueError(
+            f"Unknown desired_case: {desired_case!r}. "
+            f"Use one of: {sorted(_VALID_CASES)}"
+        )
     words = [w for w in (clean_token(t) for t in tokens) if w and w != "na"]
     if desired_case == "camelCase":
         split_words: list[str] = []
