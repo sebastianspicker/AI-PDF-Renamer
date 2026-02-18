@@ -58,6 +58,7 @@ def test_cli_reprompts_on_invalid_choices(monkeypatch, tmp_path) -> None:
     import ai_pdf_renamer.cli as cli
 
     monkeypatch.setattr(cli, "setup_logging", lambda **k: None)
+    monkeypatch.setattr(cli, "_is_interactive", lambda: True)
 
     inputs = iter(["fr", "en", "badcase", "snakecase"])
     monkeypatch.setattr(builtins, "input", lambda _prompt: next(inputs))
