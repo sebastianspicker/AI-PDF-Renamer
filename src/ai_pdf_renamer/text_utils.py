@@ -9,12 +9,22 @@ _DATE_RE_YMD = re.compile(r"\b(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})\b")
 _DATE_RE_DMY = re.compile(r"\b(\d{1,2})[./-](\d{1,2})[./-](\d{4})\b")
 
 
-def extract_date_from_content(content: str, *, today: date | None = None) -> str:
+def extract_date_from_content(
+    content: str | None,
+    *,
+    today: date | None = None,
+    date_locale: str = "dmy",
+) -> str:
     """
-    Searches the text for date formats (YYYY-MM-DD or DD.MM.YYYY) and returns
-    'YYYY-MM-DD'. If no date is found, parsing fails, or the date is invalid
-    (e.g. 2024-02-30), returns today's date.
+    Searches the text for date formats (YYYY-MM-DD or DD.MM.YYYY / MM.DD.YYYY) and
+    returns 'YYYY-MM-DD'. If no date is found, parsing fails, or the date is
+    invalid (e.g. 2024-02-30), returns today's date.
+
+    date_locale: "dmy" (day-month-year) or "mdy" (month-day-year) for short
+    numeric formats like 31.12.2024 vs 12.31.2024. ISO YYYY-MM-DD is unchanged.
     """
+    if content is None or not isinstance(content, str):
+        content = ""
     if today is None:
         today = date.today()
 
@@ -33,7 +43,11 @@ def extract_date_from_content(content: str, *, today: date | None = None) -> str
 
     match = _DATE_RE_DMY.search(content)
     if match:
-        day, month, year = match.groups()
+        g1, g2, year = match.groups()
+        if (date_locale or "dmy").lower() == "mdy":
+            month, day = g1, g2
+        else:
+            day, month = g1, g2
         if (parsed := make_ymd(year, month, day)) is not None:
             return parsed
 
@@ -47,6 +61,8 @@ def chunk_text(text: str, *, chunk_size: int = 8000, overlap: int = 1000) -> lis
         raise ValueError("overlap must be >= 0")
     if overlap >= chunk_size:
         raise ValueError("overlap must be < chunk_size")
+    if not (text and text.strip()):
+        return []
 
     chunks: list[str] = []
     start = 0
@@ -81,11 +97,13 @@ def subtract_tokens(
     return result
 
 
-def normalize_keywords(raw: str | list[str]) -> list[str]:
+def normalize_keywords(raw: str | list[str] | None) -> list[str]:
+    if raw is None:
+        return []
     if isinstance(raw, list):
-        tokens = raw
+        tokens = [str(x).strip() for x in raw]
     else:
-        tokens = [t.strip() for t in raw.split(",")]
+        tokens = [t.strip() for t in str(raw).split(",")]
 
     filtered: list[str] = []
     for token in tokens:
@@ -161,5 +179,7 @@ class Stopwords:
         return out
 
 
-def split_to_tokens(text: str) -> list[str]:
+def split_to_tokens(text: str | None) -> list[str]:
+    if text is None or not isinstance(text, str):
+        return []
     return [t for t in re.split(r"[\s,_-]+", text) if t]

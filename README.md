@@ -80,6 +80,7 @@ The renamer expects these JSON files:
 By default, the package ships with these files. You can override the location via:
 
 - `AI_PDF_RENAMER_DATA_DIR` (directory containing the JSON files)
+- `AI_PDF_RENAMER_STRUCTURED_LOGS=1` (or `true`/`yes`) to log one JSON object per line for CI/monitoring
 
 ### Local LLM endpoint
 By default the client uses:
@@ -102,14 +103,31 @@ Or via installed CLI:
 ai-pdf-renamer --dir ./input_files
 ```
 
-Interactive inputs:
-- Directory path (default: `./input_files`)
-- Language (`de` or `en`)
-- Desired case (`kebabCase`, `camelCase`, `snakeCase`)
-- Project (optional)
-- Version (optional)
+**Parameters**
 
-If the target directory does not exist, the CLI exits with a clear error.
+| Parameter   | Required | Default (non-interactive) | Description                    |
+| ----------- | -------- | ------------------------- | ------------------------------ |
+| `--dir`     | Recommended | `./input_files`        | Directory containing PDFs. Must be non-empty. |
+| `--language` | No     | `de`                     | Prompt language: `de` or `en`. |
+| `--case`    | No       | `kebabCase`              | Filename case: `camelCase`, `kebabCase`, `snakeCase`. |
+| `--project` | No       | (empty)                  | Optional project name.         |
+| `--version` | No       | (empty)                  | Optional version.             |
+| `--prefer-llm` | No    | off                      | When category conflicts, use LLM category instead of heuristic. |
+| `--date-format` | No   | `dmy`                    | Short date interpretation: `dmy` (day-month-year) or `mdy` (month-day-year). |
+
+Interactive inputs (when running with a TTY): directory path, language, case, project, version. If a value is not provided, the CLI prompts for it.
+
+**Non-interactive / CI**
+
+When stdin is not a TTY (e.g. in CI, cron, or scripts), the CLI does not prompt. All optional parameters use the defaults above. Always pass `--dir` with an explicit path to avoid accidentally using the current directory.
+
+Example:
+
+```bash
+ai-pdf-renamer --dir /path/to/pdfs --language de --case kebabCase
+```
+
+If the target directory does not exist or `--dir` is empty, the CLI exits with a clear error.
 
 ## How It Works
 
@@ -123,6 +141,8 @@ If the target directory does not exist, the CLI exits with a clear error.
    - Prompts request JSON-only responses; retries increase temperature.
 5. **Filename generation**
    - Final filename includes: date, optional project/version, category, keywords, summary tokens.
+
+**Date detection:** The tool looks for dates in the document (e.g. `YYYY-MM-DD` or `DD.MM.YYYY`). It assumes **DMY (day-month-year)** for short numeric formats like `31.12.2024`; ISO `YYYY-MM-DD` is preferred and unambiguous. Invalid calendar dates (e.g. `2024-02-30`) fall back to today's date.
 
 ## Development
 
@@ -190,13 +210,13 @@ For a detailed list of known bugs, required fixes, and improvements, see **[BUGS
 Summary:
 
 1. **LLM variability**
-   - Some local LLMs return non-JSON or partial answers. The code retries with fallback prompts but may still return `na`.
-2. **False positives in regex**
-   - PDFs might match category patterns unintentionally; tune `heuristic_scores.json` as needed.
+   - Some local LLMs return non-JSON or partial answers (e.g. wrapped in code fences or with leading prose). The tool tries to extract the first JSON object from the response and falls back to heuristics if parsing fails.
+2. **False positives in regex (heuristic category)**
+   - Categories can be assigned by regex heuristics that match text unintentionally; when both heuristic and LLM suggest a category, the heuristic wins. Tune `heuristic_scores.json` (path and format described in [Configuration](#configuration)) to reduce mismatches.
 3. **Very large PDFs**
    - Chunking helps, but large scanned PDFs may still yield partial summaries.
 4. **Date extraction**
-   - Date parsing is heuristic and can pick misleading date strings.
+   - Date parsing is heuristic; DMY is assumed for short formats. Invalid dates fall back to today. See [How It Works](#how-it-works) for details.
 
 ## Potential Improvements
 

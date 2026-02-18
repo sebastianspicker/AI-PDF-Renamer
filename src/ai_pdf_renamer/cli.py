@@ -1,10 +1,17 @@
 from __future__ import annotations
 
 import argparse
+import json
+import sys
 from collections.abc import Callable
 
 from .logging_utils import setup_logging
 from .renamer import RenamerConfig, rename_pdfs_in_directory
+
+
+def _is_interactive() -> bool:
+    """True if stdin is a TTY (interactive prompt is safe)."""
+    return sys.stdin.isatty()
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -26,6 +33,19 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--project", default=None, help="Optional project name")
     p.add_argument("--version", default=None, help="Optional version")
+    p.add_argument(
+        "--prefer-llm",
+        dest="prefer_llm_category",
+        action="store_true",
+        help="When category conflicts, use LLM suggestion instead of heuristic",
+    )
+    p.add_argument(
+        "--date-format",
+        dest="date_locale",
+        default=None,
+        choices=["dmy", "mdy"],
+        help="Short date interpretation: dmy (day-month-year) or mdy (month-day-year). Default: dmy",
+    )
     return p
 
 
@@ -47,7 +67,10 @@ def _prompt_choice(
         mapping[default_key] = default
 
     while True:
-        value = input(prompt).strip()
+        try:
+            value = input(prompt).strip()
+        except EOFError:
+            return mapping[default_key]
         if not value:
             return mapping[default_key]
         key = normalize(value) if normalize else value
@@ -64,47 +87,92 @@ def main(argv: list[str] | None = None) -> None:
 
     directory = args.dir
     if directory is None:
-        directory = (
-            input("Path to the directory with PDFs (default: ./input_files): ").strip()
-            or "./input_files"
+        if _is_interactive():
+            try:
+                directory = (
+                    input(
+                        "Path to the directory with PDFs (default: ./input_files): "
+                    ).strip()
+                    or "./input_files"
+                )
+            except EOFError:
+                directory = "./input_files"
+        else:
+            directory = "./input_files"
+
+    directory = (directory or "").strip()
+    if not directory:
+        raise SystemExit(
+            "Error: --dir must be non-empty. Provide a path or set the directory "
+            "when prompted."
         )
 
     language = args.language
     if language is None:
-        language = _prompt_choice(
-            "Language (de/en, default: de): ",
-            choices=["de", "en"],
-            default="de",
-            normalize=str.lower,
-        )
+        if _is_interactive():
+            language = _prompt_choice(
+                "Language (de/en, default: de): ",
+                choices=["de", "en"],
+                default="de",
+                normalize=str.lower,
+            )
+        else:
+            language = "de"
 
     desired_case = args.desired_case
     if desired_case is None:
-        desired_case = _prompt_choice(
-            (
-                "Desired case format (camelCase, kebabCase, snakeCase, "
-                "default: kebabCase): "
-            ),
-            choices=["camelCase", "kebabCase", "snakeCase"],
-            default="kebabCase",
-            normalize=str.lower,
-        )
+        if _is_interactive():
+            desired_case = _prompt_choice(
+                (
+                    "Desired case format (camelCase, kebabCase, snakeCase, "
+                    "default: kebabCase): "
+                ),
+                choices=["camelCase", "kebabCase", "snakeCase"],
+                default="kebabCase",
+                normalize=str.lower,
+            )
+        else:
+            desired_case = "kebabCase"
 
     project = args.project
     if project is None:
-        project = input("Project name (optional): ").strip()
+        if _is_interactive():
+            try:
+                project = input("Project name (optional): ").strip()
+            except EOFError:
+                project = ""
+        else:
+            project = ""
 
     version = args.version
     if version is None:
-        version = input("Version (optional): ").strip()
+        if _is_interactive():
+            try:
+                version = input("Version (optional): ").strip()
+            except EOFError:
+                version = ""
+        else:
+            version = ""
+
+    prefer_llm_category = bool(getattr(args, "prefer_llm_category", False))
+    date_locale = getattr(args, "date_locale", None) or "dmy"
 
     config = RenamerConfig(
         language=language,
         desired_case=desired_case,
         project=project,
         version=version,
+        prefer_llm_category=prefer_llm_category,
+        date_locale=date_locale,
     )
     try:
         rename_pdfs_in_directory(directory, config=config)
     except (FileNotFoundError, NotADirectoryError, OSError) as exc:
+        raise SystemExit(str(exc)) from exc
+    except json.JSONDecodeError as exc:
+        raise SystemExit(
+            f"Invalid JSON in data file. Check heuristic_scores.json / "
+            f"meta_stopwords.json in the data directory. {exc!s}"
+        ) from exc
+    except ValueError as exc:
         raise SystemExit(str(exc)) from exc

@@ -18,6 +18,7 @@ dependencies = [
 dev = [
   "pytest>=8.0.0",
   "ruff>=0.6.0",
+  "mypy>=1.11.0",
 ]
 pdf = [
   "pymupdf>=1.23.0",
@@ -52,3 +53,13 @@ ignore = [
   # Allow explicit exception chaining omissions in a small codebase.
   "B904",
 ]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+# Optional deps (fitz, tiktoken) not always installed.
+[[tool.mypy.overrides]]
+module = ["fitz", "tiktoken"]
+ignore_missing_imports = true

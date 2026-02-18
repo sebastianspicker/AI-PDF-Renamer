@@ -2,12 +2,19 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import Literal
 
-DATA_FILES = {
+DataFileName = Literal[
     "heuristic_patterns.json",
     "heuristic_scores.json",
     "meta_stopwords.json",
-}
+]
+
+DATA_FILES: frozenset[str] = frozenset({
+    "heuristic_patterns.json",
+    "heuristic_scores.json",
+    "meta_stopwords.json",
+})
 
 
 def project_root(start: Path | None = None) -> Path:
@@ -25,7 +32,7 @@ def project_root(start: Path | None = None) -> Path:
 
 
 def data_dir() -> Path:
-    override = os.getenv("AI_PDF_RENAMER_DATA_DIR")
+    override = (os.getenv("AI_PDF_RENAMER_DATA_DIR") or "").strip()
     if override:
         return Path(override).expanduser().resolve()
     return project_root(Path(__file__).resolve()).resolve()
@@ -35,7 +42,7 @@ def package_data_path(filename: str) -> Path:
     return Path(__file__).resolve().parent / "data" / filename
 
 
-def data_path(filename: str) -> Path:
+def data_path(filename: DataFileName) -> Path:
     if filename not in DATA_FILES:
         raise ValueError(f"Unsupported data file: {filename}")
     candidate = data_dir() / filename

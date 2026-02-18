@@ -2,16 +2,22 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
+# Cached tiktoken encoding to avoid repeated get_encoding() in _shrink_to_token_limit loop.
+_tiktoken_encoding: Any = None
+
 
 def _token_count(text: str) -> int:
+    global _tiktoken_encoding
     try:
         import tiktoken
 
-        encoding = tiktoken.get_encoding("cl100k_base")
-        return len(encoding.encode(text))
+        if _tiktoken_encoding is None:
+            _tiktoken_encoding = tiktoken.get_encoding("cl100k_base")
+        return len(_tiktoken_encoding.encode(text))
     except Exception:
         # Fallback heuristic: ~4 chars per token for typical text.
         return max(1, len(text) // 4)
@@ -23,11 +29,13 @@ def _shrink_to_token_limit(text: str, *, max_tokens: int) -> str:
     return text
 
 
-def pdf_to_text(filepath: str | Path, *, max_tokens: int = 15000) -> str:
+def pdf_to_text(filepath: str | Path | None, *, max_tokens: int = 15000) -> str:
     """
     Extracts text from a PDF via PyMuPDF (fitz). Import is done lazily so that
     core functionality can be tested without optional deps installed.
     """
+    if filepath is None:
+        return ""
     try:
         import fitz  # type: ignore[import-not-found]
     except Exception as exc:  # pragma: no cover
@@ -57,7 +65,7 @@ def pdf_to_text(filepath: str | Path, *, max_tokens: int = 15000) -> str:
     return _shrink_to_token_limit(content, max_tokens=max_tokens)
 
 
-def _extract_pages(doc, path: Path) -> list[str]:
+def _extract_pages(doc: Any, path: Path) -> list[str]:
     pieces: list[str] = []
     for page_number in range(doc.page_count):
         try:
@@ -70,16 +78,26 @@ def _extract_pages(doc, path: Path) -> list[str]:
 
         try:
             page_bits.append(page.get_text("text"))
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning(
+                "Page %s get_text('text') failed in %s: %s",
+                page_number,
+                path,
+                exc,
+            )
 
         try:
             blocks = page.get_text("blocks") or []
             page_bits.append(
                 " ".join(b[4] for b in blocks if len(b) > 4 and str(b[4]).strip())
             )
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning(
+                "Page %s get_text('blocks') failed in %s: %s",
+                page_number,
+                path,
+                exc,
+            )
 
         try:
             rawdict = page.get_text("rawdict") or {}
@@ -89,13 +107,18 @@ def _extract_pages(doc, path: Path) -> list[str]:
                         t = span.get("text", "")
                         if t and t.strip():
                             page_bits.append(t)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning(
+                "Page %s get_text('rawdict') failed in %s: %s",
+                page_number,
+                path,
+                exc,
+            )
 
         combined = " ".join(t.strip() for t in page_bits if t and t.strip()).strip()
         if combined:
             pieces.append(combined)
-            logger.info(
+            logger.debug(
                 "Combined extracted %s characters from page %s of %s",
                 len(combined),
                 page_number,

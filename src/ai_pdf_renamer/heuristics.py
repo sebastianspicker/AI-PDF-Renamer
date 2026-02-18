@@ -17,7 +17,19 @@ class HeuristicRule:
 
 
 def load_heuristic_rules(path: str | Path) -> list[HeuristicRule]:
-    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    path_obj = Path(path)
+    try:
+        raw = path_obj.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ValueError(
+            f"Could not read data file {path_obj.name!r}: {exc!s}"
+        ) from exc
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ValueError(
+            f"Invalid JSON in data file {path_obj.name!r}. {exc!s}"
+        ) from exc
     rules: list[HeuristicRule] = []
     raw_patterns = data.get("patterns", [])
     if not isinstance(raw_patterns, list):
@@ -48,6 +60,8 @@ class HeuristicScorer:
     rules: list[HeuristicRule]
 
     def best_category(self, text: str) -> str:
+        if text is None or not isinstance(text, str):
+            return "unknown"
         scores: dict[str, float] = {}
         for rule in self.rules:
             if rule.pattern.search(text):
@@ -61,12 +75,24 @@ class HeuristicScorer:
         return best_cat
 
 
-def combine_categories(cat_llm: str, cat_heuristic: str) -> str:
+def combine_categories(
+    cat_llm: str,
+    cat_heuristic: str,
+    *,
+    prefer_llm: bool = False,
+) -> str:
     if cat_heuristic == "unknown":
         return cat_llm
     if cat_llm in {"document", "unknown", "na", ""}:
         return cat_heuristic
     if cat_llm != cat_heuristic:
+        if prefer_llm:
+            logger.info(
+                "Conflict: LLM category=%s, Heuristic=%s. Preferring LLM.",
+                cat_llm,
+                cat_heuristic,
+            )
+            return cat_llm
         logger.info(
             "Conflict: LLM category=%s, Heuristic=%s. Prioritizing heuristic.",
             cat_llm,
