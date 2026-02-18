@@ -42,6 +42,7 @@ def _sanitize_filename_base(name: str) -> str:
     safe = _FILENAME_UNSAFE_RE.sub("", name.strip())
     return safe.strip() or "unnamed"
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -229,7 +230,7 @@ def rename_pdfs_in_directory(
     dir_str = str(directory).strip()
     if not dir_str:
         raise ValueError(
-            "Directory path must be non-empty. Provide a path via --dir or when prompted."
+            "Directory path must be non-empty. Use --dir or provide when prompted."
         )
     path = Path(directory)
     if not path.exists():
@@ -270,7 +271,8 @@ def rename_pdfs_in_directory(
                 size = 0
             if size > 0:
                 logger.warning(
-                    "PDF appears empty but has %s bytes; extraction may have failed: %s",
+                    "PDF appears empty but has %s bytes; "
+                    "extraction may have failed: %s",
                     size,
                     file_path,
                 )
@@ -308,10 +310,13 @@ def rename_pdfs_in_directory(
                     counter += 1
                     target = file_path.with_name(f"{base}_{counter}" + file_path.suffix)
                 except OSError as e:
-                    if getattr(errno, "ENAMETOOLONG", None) is not None and e.errno == errno.ENAMETOOLONG:
+                    if (
+                        getattr(errno, "ENAMETOOLONG", None) is not None
+                        and e.errno == errno.ENAMETOOLONG
+                    ):
                         raise OSError(
                             e.errno,
-                            f"Generated filename is too long for the filesystem: {target.name!r}. "
+                            f"Filename too long for filesystem: {target.name!r}. "
                             "Shorten project/version or content-derived parts.",
                         ) from e
                     if e.errno == errno.EXDEV:
@@ -341,7 +346,8 @@ def rename_pdfs_in_directory(
                 retries += 1
             if not renamed_this:
                 logger.error(
-                    "Skipping %s: could not rename after %s attempts (target exists or contention)",
+                    "Skipping %s: could not rename after %s attempts "
+                    "(target exists or contention)",
                     file_path.name,
                     max_rename_retries,
                 )

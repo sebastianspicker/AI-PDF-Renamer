@@ -206,7 +206,9 @@ class LocalLLMClient:
                 )
                 return ""
             first_choice = choices[0]
-            text = first_choice.get("text", "") if isinstance(first_choice, dict) else ""
+            text = (
+                first_choice.get("text", "") if isinstance(first_choice, dict) else ""
+            )
             return str(text).strip()
         except requests.HTTPError as exc:
             logger.warning(
@@ -249,7 +251,8 @@ def complete_json_with_retry(
         temp += 0.2
         logger.info("Retry %s: New temperature=%s", i + 1, temp)
     logger.warning(
-        "All %s retries exhausted; using last response as fallback (may not be valid JSON)",
+        "All %s retries exhausted; using last response as fallback "
+        "(may not be valid JSON).",
         max_retries,
     )
     return last

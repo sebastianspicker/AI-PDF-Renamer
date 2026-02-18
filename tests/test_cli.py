@@ -155,16 +155,14 @@ def test_cli_exits_on_missing_data_file(monkeypatch, tmp_path) -> None:
 def test_cli_exits_on_broken_json_in_data_file_integration(
     monkeypatch, tmp_path
 ) -> None:
-    """With real broken JSON in data dir and a PDF with content, CLI exits with clear message."""
+    """Broken JSON in data dir + PDF with content: CLI exits with clear message."""
     import ai_pdf_renamer.cli as cli
     import ai_pdf_renamer.renamer as renamer
 
     monkeypatch.setattr(cli, "setup_logging", lambda **k: None)
     monkeypatch.setenv("AI_PDF_RENAMER_DATA_DIR", str(tmp_path))
 
-    (tmp_path / "meta_stopwords.json").write_text(
-        '{"stopwords": []}', encoding="utf-8"
-    )
+    (tmp_path / "meta_stopwords.json").write_text('{"stopwords": []}', encoding="utf-8")
     (tmp_path / "heuristic_scores.json").write_text("{ invalid }", encoding="utf-8")
 
     pdf_dir = tmp_path / "pdfs"
@@ -204,7 +202,9 @@ def test_cli_exits_on_broken_json_in_data_file_integration(
     assert "Invalid JSON" in msg or "heuristic_scores" in msg or "JSON" in msg
 
 
-def test_cli_non_interactive_uses_defaults_without_hanging(monkeypatch, tmp_path) -> None:
+def test_cli_non_interactive_uses_defaults_without_hanging(
+    monkeypatch, tmp_path
+) -> None:
     """With no TTY, CLI uses defaults and does not prompt (suitable for CI/cron)."""
     import ai_pdf_renamer.cli as cli
 
@@ -231,7 +231,7 @@ def test_cli_non_interactive_uses_defaults_without_hanging(monkeypatch, tmp_path
 
 
 def test_cli_renames_with_mocked_llm_no_network(monkeypatch, tmp_path) -> None:
-    """Full rename flow runs without a real LLM when get_document_* are mocked (CI-safe)."""
+    """Rename flow without real LLM when get_document_* are mocked (CI-safe)."""
     import ai_pdf_renamer.cli as cli
     import ai_pdf_renamer.renamer as renamer
 

@@ -44,7 +44,7 @@ def _build_parser() -> argparse.ArgumentParser:
         dest="date_locale",
         default=None,
         choices=["dmy", "mdy"],
-        help="Short date interpretation: dmy (day-month-year) or mdy (month-day-year). Default: dmy",
+        help="Date order: dmy (day-month-year) or mdy (month-day-year). Default: dmy",
     )
     return p
 

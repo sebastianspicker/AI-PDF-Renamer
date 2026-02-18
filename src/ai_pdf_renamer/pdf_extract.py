@@ -6,7 +6,7 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# Cached tiktoken encoding to avoid repeated get_encoding() in _shrink_to_token_limit loop.
+# Cached tiktoken encoding to avoid repeated get_encoding() in _shrink_to_token_limit.
 _tiktoken_encoding: Any = None
 
 

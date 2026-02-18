@@ -10,11 +10,13 @@ DataFileName = Literal[
     "meta_stopwords.json",
 ]
 
-DATA_FILES: frozenset[str] = frozenset({
-    "heuristic_patterns.json",
-    "heuristic_scores.json",
-    "meta_stopwords.json",
-})
+DATA_FILES: frozenset[str] = frozenset(
+    {
+        "heuristic_patterns.json",
+        "heuristic_scores.json",
+        "meta_stopwords.json",
+    }
+)
 
 
 def project_root(start: Path | None = None) -> Path:
