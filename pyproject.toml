@@ -26,9 +26,17 @@ pdf = [
 tokens = [
   "tiktoken>=0.5.0",
 ]
+ocr = [
+  "ocrmypdf>=14.0.0",
+]
+embeddings = [
+  "sentence-transformers>=2.0.0",
+]
 
 [project.scripts]
 ai-pdf-renamer = "ai_pdf_renamer.cli:main"
+ai-pdf-renamer-gui = "ai_pdf_renamer.gui:main"
+ai-pdf-renamer-undo = "ai_pdf_renamer.undo_cli:main"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
@@ -44,7 +52,7 @@ testpaths = ["tests"]
 addopts = "-q"
 
 [tool.ruff]
-line-length = 88
+line-length = 120
 target-version = "py313"
 
 [tool.ruff.lint]
@@ -59,7 +67,7 @@ python_version = "3.13"
 strict = true
 warn_return_any = true
 warn_unused_ignores = true
-# Optional deps (fitz, tiktoken) not always installed.
+# Optional deps (fitz, tiktoken, ocrmypdf, sentence_transformers) not always installed.
 [[tool.mypy.overrides]]
-module = ["fitz", "tiktoken"]
+module = ["fitz", "tiktoken", "ocrmypdf", "sentence_transformers"]
 ignore_missing_imports = true

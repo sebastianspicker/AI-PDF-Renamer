@@ -13,9 +13,7 @@ from ai_pdf_renamer.text_utils import Stopwords
 def test_generate_filename_stopwords_and_dedup(monkeypatch) -> None:
     import ai_pdf_renamer.renamer as renamer_mod
 
-    monkeypatch.setattr(
-        renamer_mod, "get_document_summary", lambda *a, **k: "Some summary"
-    )
+    monkeypatch.setattr(renamer_mod, "get_document_summary", lambda *a, **k: "Some summary")
     monkeypatch.setattr(
         renamer_mod,
         "get_document_keywords",
@@ -39,7 +37,7 @@ def test_generate_filename_stopwords_and_dedup(monkeypatch) -> None:
     )
     stopwords = Stopwords(words={"summary", "json"})
 
-    name = generate_filename(
+    name, _ = generate_filename(
         "Invoice dated 2024-01-09",
         config=RenamerConfig(language="de", desired_case="kebabCase"),
         llm_client=object(),  # unused due to monkeypatching
@@ -55,17 +53,11 @@ def test_generate_filename_camel_case(monkeypatch) -> None:
     import ai_pdf_renamer.renamer as renamer_mod
 
     monkeypatch.setattr(renamer_mod, "get_document_summary", lambda *a, **k: "x")
-    monkeypatch.setattr(
-        renamer_mod, "get_document_keywords", lambda *a, **k: ["Foo Bar"]
-    )
-    monkeypatch.setattr(
-        renamer_mod, "get_document_category", lambda *a, **k: "My Category"
-    )
-    monkeypatch.setattr(
-        renamer_mod, "get_final_summary_tokens", lambda *a, **k: ["Baz"]
-    )
+    monkeypatch.setattr(renamer_mod, "get_document_keywords", lambda *a, **k: ["Foo Bar"])
+    monkeypatch.setattr(renamer_mod, "get_document_category", lambda *a, **k: "My Category")
+    monkeypatch.setattr(renamer_mod, "get_final_summary_tokens", lambda *a, **k: ["Baz"])
 
-    name = generate_filename(
+    name, _ = generate_filename(
         "2024-02-01",
         config=RenamerConfig(language="de", desired_case="camelCase"),
         llm_client=object(),
@@ -87,9 +79,9 @@ def test_rename_skips_empty_pdf(monkeypatch, tmp_path) -> None:
 
     called = {"count": 0}
 
-    def _gen(*a, **k) -> str:
+    def _gen(*a, **k):
         called["count"] += 1
-        return "should-not"
+        return "should-not", {}
 
     monkeypatch.setattr(renamer_mod, "generate_filename", _gen)
 
@@ -120,9 +112,7 @@ def test_rename_collision_suffixes(monkeypatch, tmp_path) -> None:
     (tmp_path / "20240101-report_1.pdf").write_bytes(b"existing")
 
     monkeypatch.setattr(renamer_mod, "pdf_to_text", lambda *a, **k: "content")
-    monkeypatch.setattr(
-        renamer_mod, "generate_filename", lambda *a, **k: "20240101-report"
-    )
+    monkeypatch.setattr(renamer_mod, "generate_filename", lambda *a, **k: ("20240101-report", {}))
 
     renamer_mod.rename_pdfs_in_directory(tmp_path, config=renamer_mod.RenamerConfig())
 

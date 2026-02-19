@@ -44,6 +44,14 @@ def package_data_path(filename: str) -> Path:
     return Path(__file__).resolve().parent / "data" / filename
 
 
+def category_aliases_path() -> Path:
+    """Path to category_aliases.json: data_dir first (if present), else package data."""
+    override = data_dir() / "category_aliases.json"
+    if override.exists():
+        return override
+    return package_data_path("category_aliases.json")
+
+
 def data_path(filename: DataFileName) -> Path:
     if filename not in DATA_FILES:
         raise ValueError(f"Unsupported data file: {filename}")

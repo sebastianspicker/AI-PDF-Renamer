@@ -19,3 +19,17 @@ def test_parse_json_field_sanitizes_quotes() -> None:
     # Unescaped quotes inside value should be fixed by sanitizer.
     raw = '{"summary":"He said "hello" today"}'
     assert parse_json_field(raw, key="summary") == 'He said "hello" today'
+
+
+def test_parse_json_field_lenient_extracts_without_brace() -> None:
+    # Lenient: response that does not start with "{" but contains "key":"value".
+    assert (
+        parse_json_field(
+            'Here is the result. "summary":"A short summary."',
+            key="summary",
+            lenient=True,
+        )
+        == "A short summary."
+    )
+    assert parse_json_field("No JSON here", key="summary", lenient=True) is None
+    assert parse_json_field('"category":"invoice"', key="category", lenient=True) == "invoice"

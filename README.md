@@ -2,12 +2,13 @@
 
 Rename PDFs based on extracted text, heuristic scoring, and an optional local LLM. The tool inspects PDF content, proposes a category/keywords/summary, and builds a deterministic filename such as:
 
-```
+```text
 YYYYMMDD-category-keywords-summary.pdf
 ```
 
 ## Table of Contents
 
+0. [Documentation](#documentation)
 1. [Overview](#overview)
 2. [Features](#features)
 3. [Requirements](#requirements)
@@ -24,6 +25,14 @@ YYYYMMDD-category-keywords-summary.pdf
 14. [Known issues and fixes](#known-issues-and-fixes)
 15. [Potential Improvements](#potential-improvements)
 
+## Documentation
+
+All project documentation is in **English**. Full index:
+
+- **[docs/README.md](docs/README.md)** – Documentation index (architecture, runbook, design, bugs).
+- **Agent map:** [AGENTS.md](AGENTS.md).
+- **Key technical docs:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (workflow, components), [docs/RUNBOOK.md](docs/RUNBOOK.md) (setup, env, options), [docs/RECOGNITION-RATE.md](docs/RECOGNITION-RATE.md), [BUGS_AND_FIXES.md](BUGS_AND_FIXES.md). **Library usage:** [docs/API.md](docs/API.md) (stable API, `generate_filename` without renaming).
+
 ## Overview
 
 Many PDF documents are poorly named (e.g., `Scan0001.pdf`). This tool:
@@ -35,7 +44,7 @@ Many PDF documents are poorly named (e.g., `Scan0001.pdf`). This tool:
 5. Filters prompt artifacts via `meta_stopwords.json`.
 6. Renames PDFs to include date, category, keywords, and short summary tokens.
 
-If a document is large (e.g., >15k characters), the text is chunked and summarized in parts before a final summary is produced.
+If a document is larger than the 128K-context single-shot limit (~480k characters), the text is chunked and summarized in parts before a final summary is produced.
 
 ## Features
 
@@ -48,7 +57,7 @@ If a document is large (e.g., >15k characters), the text is chunked and summariz
 
 ## Requirements
 
-- Python 3.10+
+- Python 3.13+
 - `requests`
 - `pymupdf` (for PDF extraction)
 - Optional: `tiktoken` (better token counting)
@@ -72,6 +81,7 @@ python -m pip install -e '.[tokens]'
 ## Configuration
 
 ### Data files
+
 The renamer expects these JSON files:
 
 - `heuristic_scores.json` (regex rules + scores)
@@ -83,11 +93,17 @@ By default, the package ships with these files. You can override the location vi
 - `AI_PDF_RENAMER_DATA_DIR` (directory containing the JSON files)
 
 ### Local LLM endpoint
+
 By default the client uses:
 
 - `http://127.0.0.1:11434/v1/completions`
+- Default model: **qwen3:8b** (optimized for 128K context)
 
 If your endpoint differs, update `LocalLLMClient` in `src/ai_pdf_renamer/llm.py`.
+
+**Proxy:** The built-in client disables proxy use (`trust_env=False`) so prompt content stays on-device. If you use a custom client or wrapper, set `NO_PROXY=127.0.0.1,localhost` so the LLM traffic is not forwarded. See [SECURITY.md](SECURITY.md).
+
+**128K context (Qwen3 8B):** The pipeline is tuned for Qwen3 8B with a 128K token context: PDF text is passed in one shot up to ~120K tokens; only very long documents are chunked. For Ollama, set the context size when running the server (e.g. `OLLAMA_NUM_CTX=131072`) or in the model’s Modelfile so the server accepts long prompts. See [docs/RUNBOOK.md](docs/RUNBOOK.md#ollama-128k-context-qwen3-8b).
 
 ## Usage
 
@@ -103,7 +119,14 @@ Or via installed CLI:
 ai-pdf-renamer --dir ./input_files
 ```
 
+Desktop GUI (folder picker, options, dry-run preview, apply):
+
+```bash
+ai-pdf-renamer-gui
+```
+
 Interactive inputs:
+
 - Directory path (default: `./input_files`)
 - Language (`de` or `en`)
 - Desired case (`kebabCase`, `camelCase`, `snakeCase`)
@@ -111,6 +134,15 @@ Interactive inputs:
 - Version (optional)
 
 If the target directory does not exist, the CLI exits with a clear error.
+
+**Undo renames:** If you used `--rename-log FILE`, revert renames with:
+
+```bash
+ai-pdf-renamer-undo --rename-log FILE [--dry-run]
+# or: python scripts/undo_renames.py -l FILE [--dry-run]
+```
+
+See [docs/RUNBOOK.md](docs/RUNBOOK.md) for more options (recursive, single file, plan file, watch, export metadata).
 
 ## How It Works
 
@@ -127,9 +159,35 @@ If the target directory does not exist, the CLI exits with a clear error.
 
 ## Repository flow
 
-From invocation to the renamed PDF, the flow is:
+From invocation to the renamed PDF:
 
+```mermaid
+flowchart TB
+  A["Entry: ai-pdf-renamer --dir &lt;path&gt; or GUI"] --> B["Parse args → RenamerConfig"]
+  B --> C["List PDFs, sort by mtime"]
+  C --> D["For each PDF"]
+  D --> E["Extract text (PyMuPDF)"]
+  E --> F1
+  E --> F2
+  E --> F3
+  F5 --> G["Collision suffix, os.rename"]
+  G --> D
+
+  subgraph gen["generate_filename()"]
+    F1["Date from content"]
+    F2["Heuristic category (regex)"]
+    F3["LLM: summary, keywords, category"]
+    F4["Combine category, stopwords, case"]
+    F5["Build filename"]
+    F1 & F2 & F3 --> F4 --> F5
+  end
 ```
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full workflow and component map.
+
+ASCII overview:
+
+```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  Entry: python ren.py  or  ai-pdf-renamer --dir <path>                       │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -271,3 +329,6 @@ Summary:
 2. Multi-language heuristic rule sets (per-locale JSON files).
 3. Parallel processing for large directories.
 4. Optional metadata export (CSV/JSON) before renaming.
+5. **Scanned PDFs:** Use `--ocr` so the tool runs OCR when PDFs have little text; install with `.[ocr]` and Tesseract. See [docs/RUNBOOK.md](docs/RUNBOOK.md).
+6. **GUI:** Run `ai-pdf-renamer-gui` for a desktop wrapper (folder picker, progress, dry-run preview, apply). See [docs/RUNBOOK.md](docs/RUNBOOK.md#gui).
+7. See [docs/RUNBOOK.md](docs/RUNBOOK.md) and [BUGS_AND_FIXES.md](BUGS_AND_FIXES.md) for more options and improvement notes.

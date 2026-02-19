@@ -254,7 +254,7 @@ List derived from documentation, known limitations, and code review. Each item c
 
 ### 23. [Bug] Response must start with `{`; no extraction from fences/preambles
 
-**Description:** `parse_json_field()` returns None if the response does not start with `{`. Many LLMs return JSON inside code fences (```json ... ```) or with a short preamble; that content is dropped.
+**Description:** `parse_json_field()` returns None if the response does not start with `{`. Many LLMs return JSON inside code fences (```json ...```) or with a short preamble; that content is dropped.
 
 **Fix:** Attempt to extract the first JSON object from the response (e.g. find first `{`, then matching `}`); optionally strip markdown code fences before parsing.
 

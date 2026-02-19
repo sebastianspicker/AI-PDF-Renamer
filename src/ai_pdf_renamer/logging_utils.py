@@ -35,9 +35,7 @@ class StructuredLogFormatter(logging.Formatter):
             )
 
 
-def setup_logging(
-    *, log_file: str | Path = "error.log", level: int = logging.INFO
-) -> None:
+def setup_logging(*, log_file: str | Path = "error.log", level: int = logging.INFO) -> None:
     root = logging.getLogger()
     root.setLevel(level)
 

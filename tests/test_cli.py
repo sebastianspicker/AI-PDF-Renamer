@@ -65,7 +65,7 @@ def test_cli_reprompts_on_invalid_choices(monkeypatch, tmp_path) -> None:
 
     captured: dict[str, object] = {}
 
-    def _fake_rename(directory, *, config):
+    def _fake_rename(directory, *, config, files_override=None):
         captured["directory"] = directory
         captured["config"] = config
 
@@ -153,9 +153,7 @@ def test_cli_exits_on_missing_data_file(monkeypatch, tmp_path) -> None:
     assert "not found" in msg or "Data file" in msg
 
 
-def test_cli_exits_on_broken_json_in_data_file_integration(
-    monkeypatch, tmp_path
-) -> None:
+def test_cli_exits_on_broken_json_in_data_file_integration(monkeypatch, tmp_path) -> None:
     """Broken JSON in data dir + PDF with content: CLI exits with clear message."""
     import ai_pdf_renamer.cli as cli
     import ai_pdf_renamer.renamer as renamer
@@ -203,9 +201,7 @@ def test_cli_exits_on_broken_json_in_data_file_integration(
     assert "Invalid JSON" in msg or "heuristic_scores" in msg or "JSON" in msg
 
 
-def test_cli_non_interactive_uses_defaults_without_hanging(
-    monkeypatch, tmp_path
-) -> None:
+def test_cli_non_interactive_uses_defaults_without_hanging(monkeypatch, tmp_path) -> None:
     """With no TTY, CLI uses defaults and does not prompt (suitable for CI/cron)."""
     import ai_pdf_renamer.cli as cli
 
@@ -214,7 +210,7 @@ def test_cli_non_interactive_uses_defaults_without_hanging(
 
     captured: dict[str, object] = {}
 
-    def _fake_rename(directory, *, config):
+    def _fake_rename(directory, *, config, files_override=None):
         captured["directory"] = directory
         captured["config"] = config
 
