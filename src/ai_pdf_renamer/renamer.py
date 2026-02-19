@@ -975,6 +975,9 @@ def rename_pdfs_in_directory(
     for i, (file_path, new_base, meta, exc) in enumerate(results):
         logger.info("Processing %s/%s: %s", i + 1, len(files), file_path)
         if exc is not None:
+            # Data-file/config errors (e.g. invalid JSON) should propagate so CLI can exit with clear message.
+            if isinstance(exc, ValueError) and "Invalid JSON in data file" in str(exc):
+                raise exc
             logger.exception("Failed to process %s: %s", file_path, exc)
             failed_count += 1
             continue
